@@ -23,7 +23,6 @@ jobs:
       - name: Module Plan
         id: module-plan
         working-directory: ./services/webserver-cluster
-        if: github.event_name == 'push'
         run: terraform plan
         
       - name: Module Plan Status
@@ -33,5 +32,4 @@ jobs:
         
       - name: Module Apply
         working-directory: ./services/webserver-cluster
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
