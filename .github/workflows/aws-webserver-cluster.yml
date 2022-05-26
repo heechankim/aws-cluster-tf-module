@@ -1,0 +1,37 @@
+name: Webserver Terraform Module
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ModulePreparation:
+    name: module-preparation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Module Init
+        working-directory: ./services/webserver-cluster
+        run: terraform init
+        
+      - name: Module Plan
+        id: module-plan
+        working-directory: ./services/webserver-cluster
+        if: github.event_name == 'push'
+        run: terraform plan
+        
+      - name: Module Plan Status
+        working-directory: ./services/webserver-cluster
+        if: steps.module-plan.outcome == 'failure'
+        run: exit 1
+        
+      - name: Module Apply
+        working-directory: ./services/webserver-cluster
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
